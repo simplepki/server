@@ -426,4 +426,4 @@ MigrationBackup/
 # End of https://www.gitignore.io/api/go,vim,terraform,visualstudio
 
 # specific to this project
-builds
+builds/**
