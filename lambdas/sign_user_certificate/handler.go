@@ -19,8 +19,9 @@ import (
 /*
 Input Event
 {
-	"id":"test-client",
-	"path":"spiffe://test-ca/test-inter",
+	"intermediate_name": "test-inter",
+	"cert_name":"test-client",
+	"account": "test-account",
 	"csr":"MIICvDCCAaQCAQAwMjEwMC4GA1UEAxMnc3BpZmZlOi8vdGVzdC1jYS90ZXN0LWludGVyL3Rlc3QtY2xpZW50MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAw152HR4jjb3Qz8b6pL0ttMtlEO49JwJ8Ow5Pufn2TfDZw3C0J22NK4T5Y3jUyD9oUBzROeGr+yZUqyQwnKfg2PcCa0KPu3Y2utalVVy2taDq1LD4WR+bSptkeqVpD/suSIQJYoyb0GAHKy1Sr+LuH5Pqr9/QaFm4EoZen/uEPhkxeXpYPc8RkK//bD5XneI2m8qHnFYAzQ+FX/+dhJsfyOZ/qIfCEQFCXFW7w1musCsZcPIPT8ixUzdx8w000Mp3PvWPX9KsEEDm00xANkMpqjy1mNA2VUbpsm78Pn7RTdgU2ep13XFiye3ZknzV6UPocerdMAhNM5G6/TEmNO9UoQIDAQABoEUwQwYJKoZIhvcNAQkOMTYwNDAyBgNVHREEKzAphidzcGlmZmU6Ly90ZXN0LWNhL3Rlc3QtaW50ZXIvdGVzdC1jbGllbnQwDQYJKoZIhvcNAQELBQADggEBAFP2OSOA73fDgNUZDmiRKf1h1mR54FbRfHijd3jqHPEFW4aCBaJTdb+zpplGtO/sd66NY3Pvg29gbIMqWT8gnicv170jZHviSEZmBUF887vc1+H1BG5DLsrLfN1fAV98HvafpdYVsTGf4vR0OyQlRxkpk14/y90KEHPVmIwg8Z4iPgsBj7Ylm8XzMH8lwADRu0LXb84Wo9i8hGw4+M6gM5XPQVw4vaa/b1FWCbvrkNOiSJNGQCG4euav7vcdLEvTrwHVUntL/hOt2ZWjblby/vPP1jvZfXgTyp4CRcNAHabVYlNlfwZc6zr9DGMiYhtIDSsns4qPdwRT5qMHNT6UNWU="
 }
 */
