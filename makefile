@@ -8,7 +8,7 @@ endif
 
 lambdas = $(wildcard builds/*_lambda)
 
-.PHONY: upload $(lambdas) deploy
+.PHONY: upload $(lambdas) deploy bucket-up
 
 $(lambdas):
 	chmod +x $@
@@ -25,7 +25,7 @@ build: build-dir
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/create_ca_lambda lambdas/create_ca/*.go
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/create_intermediate_lambda lambdas/create_intermediate/*.go
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/sign_user_certificate_lambda lambdas/sign_user_certificate/*.go
-	#go build -o builds/get_ca_intermediate_lambda lambdas/get_ca_intermediate/*.go
+	#GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/get_ca_intermediate_lambda lambdas/get_ca_intermediate/*.go
 
 zip:
 	make $(lambdas)
