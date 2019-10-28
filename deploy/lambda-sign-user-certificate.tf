@@ -1,15 +1,42 @@
+data "archive_file" "cert_sign_csr" {
+  type = "zip"
+  source_file = "${path.module}/../builds/cert_sign_csr"
+  output_path = "${path.module}/../builds/cert_sign_csr.zip"
+}
 resource "aws_lambda_function" "sign_user_certificate" {
-	function_name = "sign_user_certificate"
+	function_name = "cert_sign_csr"
 	role = "${aws_iam_role.sign_user_certificate_role.arn}"
-	s3_bucket = "${var.bucket}"
-	s3_key = "sign_user_certificate_lambda.zip"
-	handler = "builds/sign_user_certificate_lambda"
+  filename = "${data.archive_file.cert_sign_csr.output_path}"
+  source_code_hash = "${data.archive_file.cert_sign_csr.output_base64sha256}"
+	handler = "cert_sign_csr"
 	runtime = "go1.x"
-	timeout = "10"
+	timeout = "300"
 	memory_size = 1024
-	source_code_hash = "${filebase64sha256("../builds/sign_user_certificate_lambda.zip")}"
+
+  vpc_config {
+    subnet_ids = [
+      "subnet-64506701"
+    ]
+
+    security_group_ids = [
+      "${aws_security_group.cert_sign_csr.id}"
+    ]
+  }
 
   depends_on = ["aws_iam_role_policy_attachment.sign_user_certificate_role_policy_attach_logs"]
+}
+
+resource "aws_security_group" "cert_sign_csr" {
+  name = "cert_sign_csr"
+
+   egress {
+    from_port = 0
+    to_port = 0
+    protocol = -1
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+  }
 }
 
 resource "aws_iam_role" "sign_user_certificate_role" {
@@ -50,4 +77,15 @@ resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_att
 resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_secrets_manager_get" {
 	role = "${aws_iam_role.sign_user_certificate_role.name}"
 	policy_arn = "${aws_iam_policy.secrets_manager_get_access_policy.arn}"
+}
+
+
+resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_mysql" {
+  role = "${aws_iam_role.sign_user_certificate_role.name}"
+  policy_arn = "${aws_iam_policy.secrets_manager_mysql.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_ec2" {
+  role = "${aws_iam_role.sign_user_certificate_role.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }

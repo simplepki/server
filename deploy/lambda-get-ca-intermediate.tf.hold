@@ -1,3 +1,9 @@
+data "archive_file" "cert_sign_csr" {
+  type = "zip"
+  source_file = "${path.module}/../builds/cert_sign_csr"
+  output_path = "${path.module}/../builds/cert_sign_csr.zip"
+}
+
 resource "aws_lambda_function" "get_ca_intermediate" {
 	function_name = "get_ca_intermediate"
 	role = "${aws_iam_role.get_ca_intermediate_role.arn}"

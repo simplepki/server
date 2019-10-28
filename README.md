@@ -10,10 +10,10 @@ Make a *Bucket* to track terrafrom state and to push the lambda files to. This c
 
 ### Build, Upload, Deploy
 
-With the bucket created and region chosen we can deploy the whole thing by running the following command from the `deploy` directory.
+With the bucket created and region chosen we can deploy the whole thing by running the following command from the directory.
 
 ```
-make build upload deploy bucket=<bucket> region=<region>
+make build deploy bucket=<bucket> region=<region>
 ```
 
 ## Testing Lambdas

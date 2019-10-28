@@ -1,13 +1,18 @@
+data "archive_file" "cert_create_ca" {
+  type = "zip"
+  source_file = "${path.module}/../builds/cert_create_certificate_authority"
+  output_path = "${path.module}/../builds/cert_create_certificate_authority.zip"
+}
+
 resource "aws_lambda_function" "create_ca" {
-	function_name = "create_ca"
+	function_name = "cert_create_certificate_authority"
 	role = "${aws_iam_role.create_ca_role.arn}"
-	s3_bucket = "${var.bucket}"
-	s3_key = "create_ca_lambda.zip"
-	handler = "builds/create_ca_lambda"
+	filename = "${data.archive_file.cert_create_ca.output_path}"
+  source_code_hash = "${data.archive_file.cert_create_ca.output_base64sha256}"
+	handler = "cert_create_certificate_authority"
 	runtime = "go1.x"
-	timeout = "10"
+	timeout = "300"
 	memory_size = 1024
-	source_code_hash = "${filebase64sha256("../builds/create_ca_lambda.zip")}"
 
   vpc_config {
     subnet_ids = [

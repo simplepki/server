@@ -1,13 +1,17 @@
+data "archive_file" "cert_create_intermediate" {
+  type = "zip"
+  source_file = "${path.module}/../builds/cert_create_intermediate"
+  output_path = "${path.module}/../builds/cert_create_intermediate.zip"
+}
 resource "aws_lambda_function" "create_intermediate" {
-	function_name = "create_intermediate"
+	function_name = "cert_create_intermediate"
 	role = "${aws_iam_role.create_intermediate_role.arn}"
-	s3_bucket = "${var.bucket}"
-	s3_key = "create_intermediate_lambda.zip"
-	handler = "builds/create_intermediate_lambda"
+	filename = "${data.archive_file.cert_create_intermediate.output_path}"
+  source_code_hash = "${data.archive_file.cert_create_intermediate.output_base64sha256}"
+	handler = "cert_create_intermediate"
 	runtime = "go1.x"
-	timeout = "10"
+	timeout = "300"
 	memory_size = 1024
-	source_code_hash = "${filebase64sha256("../builds/create_intermediate_lambda.zip")}"
 
   vpc_config {
     subnet_ids = [

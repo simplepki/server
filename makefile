@@ -22,17 +22,16 @@ build-dir:
 
 # each added func/lambda should be <name>_lambda	
 build: build-dir
-	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/create_ca_lambda lambdas/create_ca/*.go
-	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/create_intermediate_lambda lambdas/create_intermediate/*.go
-	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/sign_user_certificate_lambda lambdas/sign_user_certificate/*.go
-	#GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/get_ca_intermediate_lambda lambdas/get_ca_intermediate/*.go
+	cd src && \
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_create_certificate_authority lambdas/cert_create_certificate_authority/*.go && \
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_create_intermediate lambdas/cert_create_intermediate/*.go && \
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_sign_csr lambdas/cert_sign_csr/*.go && \
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_sign_in lambdas/user_sign_in/*.go
+	#GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/cert_get_certificate_chain lambdas/cert_get_certificate_chain/*.go
+	
 
 zip:
 	make $(lambdas)
-
-upload:
-	make $(lambdas) && \
-	aws s3 cp builds/ s3://$(bucket)/ --recursive --exclude "*" --include "*.zip"
 
 deploy:
 	cd deploy && \

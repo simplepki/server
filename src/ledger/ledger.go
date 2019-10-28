@@ -1,5 +1,9 @@
 package ledger
 
+import (
+	"net/url"
+)
+
 type LedgerRecord struct {
 	Certificate []byte
 	Name        string
@@ -15,6 +19,6 @@ type Ledger interface {
 	Publish(LedgerRecord)
 	GetRecordByName(string) LedgerRecord
 	GetRecordByAccount(string) []LedgerRecord
-	GetChainForRecord(string) []LedgerRecord
+	GetChainForRecord(url.URL) ([]LedgerRecord, error)
 	GetAllForAccount(string) []LedgerRecordHierarchy
 }

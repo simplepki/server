@@ -14,6 +14,8 @@ import (
 
 	"github.com/simplepki/core/keypair"
 	"github.com/simplepki/server/store"
+	"github.com/simplepki/server/ledger"
+
 )
 
 /*
@@ -40,15 +42,15 @@ type CertEvent struct {
 
 func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	if event.InterName == "" {
-		log.Fatal("no intermedaite certificatre name")
+		return CertEvent{}, errors.New("Missing Intermediate")
 	}
 
 	if event.Account == "" {
-		log.Fatal("no account specified")
+		return CertEvent{}, errors.New("Missing Account")
 	}
 
 	if len(event.CSR) == 0  {
-		log.Fatal("zero length csr provided")
+		return CertEvent{}, errors.New("No CSR Provided")
 	}
 
 	var InterName string
@@ -58,20 +60,24 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 		InterName = fmt.Sprintf("spiffe://%s", event.InterName)
 	}
 
+	if strings.HasSuffix(InterName, "/") {
+		InterName = InterName[0:len(InterName)-1]
+	}
+
 	store := store.AWSSecretsManagerStore{}
 
 	interUri, err := url.Parse(InterName)
 	if err != nil {
-		log.Fatal(err.Error())
+		return CertEvent{}, err
 	}
 
 	interExists, err := store.Exists(event.Account, *interUri)
 	if err != nil {
-		log.Fatal(err.Error())
+		return CertEvent{}, err
 	}
 
 	if !interExists {
-		log.Fatal("intermediate doesnt exist")
+		return CertEvent{}, errors.New("Intermediate Certificate Doesnt Exist")
 	}
 
 	log.Println("getting intermediate with id: ", InterName)
@@ -95,7 +101,7 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	if strings.Contains(event.CertName, InterName) {
 		CertName = event.CertName
 	} else {
-		CertName = InterName + event.CertName
+		CertName = fmt.Sprintf("%s/%s", InterName, event.CertName)
 	}
 
 	pkixName := pkix.Name{
@@ -128,6 +134,20 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	log.Printf("client certificate signed: %#v\n", signedCert.Subject.CommonName)
 	log.Printf("%#v\n", signedCert)
 
+
+	auroraLedger := ledger.AWSAuroraLedger{}
+	log.Println("publishing to aurora ledger")
+	err = auroraLedger.Publish(ledger.LedgerRecord{
+		Name:        uri.String(),
+		Account:     event.Account,
+		Certificate: signedCert.Raw,
+	})
+
+	if err != nil {
+		return CertEvent{}, errors.New("Unable to Publish Certificate")
+	}
+
+	auroraLedger.GetChainForRecord(*uri)
 	/*
 	// get chain
 	chain := led.GetChain(csr.Path)

@@ -110,7 +110,8 @@ resource "aws_iam_policy" "secrets_manager_get_access_policy" {
 	{
 		"Effect": "Allow",
 		"Action": [
-			"secretsmanager:GetSecretValue"
+			"secretsmanager:GetSecretValue",
+      "secretsmanager:DescribeSecret"
 		],
 		"Resource": "arn:aws:secretsmanager:*:*:*"
 	}
