@@ -86,7 +86,7 @@ type AuroraLedgerRecord struct {
 	gorm.Model
 	Name        string `gorm:"size:255"`
 	Account     string `gorm:"size:255"`
-	Certificate []byte
+	Certificate string `gorm:"size:5464"`
 }
 
 func (ledger AWSAuroraLedger) Publish(lrecord LedgerRecord) error {
@@ -110,8 +110,8 @@ func (ledger AWSAuroraLedger) Publish(lrecord LedgerRecord) error {
 	return nil
 }
 
-func (ledger AWSAuroraLedger) GetChainForRecord(certUrl url.URL) ([]LedgerRecord, error) {
-	log.Printf("getting chain for cert %s for account %s\n", certUrl.Path, certUrl.Host)
+func (ledger AWSAuroraLedger) GetChainForRecord(account string, certUrl url.URL) ([]LedgerRecord, error) {
+	log.Printf("getting chain for cert %#v for account %s\n", certUrl, account)
 	db, err := getDB()
 	if err != nil {
 		db.Close()
@@ -119,29 +119,29 @@ func (ledger AWSAuroraLedger) GetChainForRecord(certUrl url.URL) ([]LedgerRecord
 	}
 	defer db.Close()
 
-	var paths []string
-	if strings.HasPrefix(certUrl.Path, "/") {
-		paths = strings.Split(certUrl.Path[1:len(certUrl.Path)], "/")
+	var path string
+	if strings.HasSuffix(certUrl.Path,"/") {
+		path = fmt.Sprintf("%s%s",certUrl.Host, certUrl.Path[0:len(certUrl.Path)-1])
 	} else {
-		paths = strings.Split(certUrl.Path,"/")
+		path = fmt.Sprintf("%s%s",certUrl.Host, certUrl.Path)
 	}
 
-	searchPaths := make([]string, len(paths))
-	for idx, path := range paths {
-		insertIdx := (len(paths)-1) - idx
+	paths := strings.Split(path, "/")
+	searchPaths := make([]string,len(paths))
+	for idx, p := range paths {
 		switch idx {
 		case 0:
-			searchPaths[insertIdx] = path
+			searchPaths[idx] = p
 		default:
-			searchPaths[insertIdx] = fmt.Sprintf("%s/%s", searchPaths[insertIdx+1], path)
+			searchPaths[idx] = fmt.Sprintf("%s/%s", searchPaths[idx-1], p)
 		}
 	}
 
-	log.Printf("looking up certs for account %s using paths %#v\n", certUrl.Host, searchPaths)
+	log.Printf("looking up certs for account %s using paths %#v\n", account, searchPaths)
 	for _, path := range searchPaths {
 		searchPath := fmt.Sprintf("spiffe://%s", path)
 		var foundRecord AuroraLedgerRecord
-		db.Where(&AuroraLedgerRecord{Account: certUrl.Host, Name: searchPath}).First(&foundRecord)
+		db.Where(&AuroraLedgerRecord{Account: account, Name: searchPath}).First(&foundRecord)
 		log.Printf("account: %v, path:%v, record: %#v\n", certUrl.Host, path, foundRecord)
 	}
 

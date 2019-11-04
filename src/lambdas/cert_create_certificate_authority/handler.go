@@ -52,7 +52,7 @@ func HandleRequest(ctx context.Context, event CAEvent) (error) {
 	err = auroraLedger.Publish(ledger.LedgerRecord{
 		Name:        kp.GetCertificate().URIs[0].String(),
 		Account:     event.Account,
-		Certificate: kp.GetCertificate().Raw,
+		Certificate: string(kp.CertificatePEM()),
 	})
 
 	if err != nil {

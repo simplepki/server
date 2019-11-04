@@ -26,7 +26,7 @@ build: build-dir
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_create_certificate_authority lambdas/cert_create_certificate_authority/*.go && \
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_create_intermediate lambdas/cert_create_intermediate/*.go && \
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_sign_csr lambdas/cert_sign_csr/*.go && \
-	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_sign_in lambdas/user_sign_in/*.go
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_get_token lambdas/user_get_token/*.go
 	#GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o builds/cert_get_certificate_chain lambdas/cert_get_certificate_chain/*.go
 	
 

@@ -5,7 +5,7 @@ import (
 )
 
 type LedgerRecord struct {
-	Certificate []byte
+	Certificate string
 	Name        string
 	Account     string
 }

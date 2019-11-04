@@ -5,6 +5,7 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/base64"
+	"encoding/pem"
 	//"encoding/json"
 	"errors"
 	"fmt"
@@ -137,17 +138,21 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 
 	auroraLedger := ledger.AWSAuroraLedger{}
 	log.Println("publishing to aurora ledger")
+	signedPem :=  pem.EncodeToMemory(&pem.Block{
+		Type:  "CERTIFICATE",
+		Bytes: signedCert.Raw,
+	})
 	err = auroraLedger.Publish(ledger.LedgerRecord{
 		Name:        uri.String(),
 		Account:     event.Account,
-		Certificate: signedCert.Raw,
+		Certificate: string(signedPem),
 	})
 
 	if err != nil {
 		return CertEvent{}, errors.New("Unable to Publish Certificate")
 	}
 
-	auroraLedger.GetChainForRecord(*uri)
+	auroraLedger.GetChainForRecord(event.Account, *uri)
 	/*
 	// get chain
 	chain := led.GetChain(csr.Path)

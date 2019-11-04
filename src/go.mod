@@ -8,5 +8,5 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/jinzhu/gorm v1.9.10
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/simplepki/core v0.0.0-20190926045544-50adf02c0323
+	github.com/simplepki/core v0.0.0-20191104061520-a31354857e4a
 )

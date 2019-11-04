@@ -142,6 +142,29 @@ resource "aws_iam_policy" "secrets_manager_mysql" {
 EOF
 }
 
+resource "aws_iam_policy" "secrets_manager_jwt" {
+	name = "secrets_manager_jwt"
+	description = "IAM policy for accessing secrets manager"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+	{
+		"Effect": "Allow",
+		"Action": [
+      "secretsmanager:CreateSecret",
+      "secretsmanager:ListSecret",
+      "secretsmanager:DescribeSecret",
+			"secretsmanager:GetSecretValue"
+		],
+		"Resource": "arn:aws:secretsmanager:us-west-1:953366327760:secret:jwt*"
+	}
+  ]
+}
+EOF
+}
+
 resource "aws_iam_policy" "ec2_network_policy" {
   name = "ec2_network_policy"
   description= "IAM policy for accessing ec2 network interfaces"
