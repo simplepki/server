@@ -152,22 +152,20 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 		return CertEvent{}, errors.New("Unable to Publish Certificate")
 	}
 
-	auroraLedger.GetChainForRecord(event.Account, *uri)
-	/*
-	// get chain
-	chain := led.GetChain(csr.Path)
+	chainLedgerRecords, err := auroraLedger.GetChainForRecord(event.Account, *uri)
+	if err != nil {
+		return CertEvent{}, err
+	}
 
-	// return certificate and chain
-	returnCert := &CertEvent{
-		Cert:  base64.StdEncoding.EncodeToString(signedCert.Raw),
+	chain := make([]string, len(chainLedgerRecords))
+	for idx, record := range chainLedgerRecords {
+		chain[idx] = record.Certificate
+	}
+	
+	returnCert := CertEvent{
+		Cert:  string(signedPem),
 		Chain: chain,
 	}
 
-	certBody, err := json.Marshal(returnCert)
-	if err != nil {
-		log.Fatal(err.Error())
-	}
-	*/
-
-	return CertEvent{}, nil
+	return returnCert, nil
 }

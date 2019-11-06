@@ -4,17 +4,16 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"time"
 	"net/url"
 	"strings"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
-
 
 type DBConnectionInfo struct {
 	Username string `json:"username"`
@@ -34,7 +33,7 @@ func getDB() (*gorm.DB, error) {
 	queryString := "mysql"
 
 	query := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(queryString),
+		SecretId:     aws.String(queryString),
 		VersionStage: aws.String("AWSCURRENT"),
 	}
 
@@ -43,11 +42,10 @@ func getDB() (*gorm.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
 
 	var dbConnectionInfo DBConnectionInfo
 	err = json.Unmarshal([]byte(*output.SecretString), &dbConnectionInfo)
-	
+
 	if err != nil {
 		log.Fatalln(err.Error())
 		return nil, err
@@ -59,7 +57,7 @@ func getDB() (*gorm.DB, error) {
 		dbConnectionInfo.Host,
 		dbConnectionInfo.Port,
 		"ledger")
-	
+
 	db, err := gorm.Open("mysql", connectionString)
 	if err != nil {
 		log.Println(err.Error())
@@ -69,7 +67,7 @@ func getDB() (*gorm.DB, error) {
 	log.Println("connection open")
 	db.DB().SetConnMaxLifetime(300 * time.Second)
 
-	if !db.HasTable(&AuroraLedgerRecord{}){
+	if !db.HasTable(&AuroraLedgerRecord{}) {
 		log.Println("creating aurora ledger table")
 		db.CreateTable(&AuroraLedgerRecord{})
 	}
@@ -120,14 +118,14 @@ func (ledger AWSAuroraLedger) GetChainForRecord(account string, certUrl url.URL)
 	defer db.Close()
 
 	var path string
-	if strings.HasSuffix(certUrl.Path,"/") {
-		path = fmt.Sprintf("%s%s",certUrl.Host, certUrl.Path[0:len(certUrl.Path)-1])
+	if strings.HasSuffix(certUrl.Path, "/") {
+		path = fmt.Sprintf("%s%s", certUrl.Host, certUrl.Path[0:len(certUrl.Path)-1])
 	} else {
-		path = fmt.Sprintf("%s%s",certUrl.Host, certUrl.Path)
+		path = fmt.Sprintf("%s%s", certUrl.Host, certUrl.Path)
 	}
 
 	paths := strings.Split(path, "/")
-	searchPaths := make([]string,len(paths))
+	searchPaths := make([]string, len(paths))
 	for idx, p := range paths {
 		switch idx {
 		case 0:
@@ -138,13 +136,18 @@ func (ledger AWSAuroraLedger) GetChainForRecord(account string, certUrl url.URL)
 	}
 
 	log.Printf("looking up certs for account %s using paths %#v\n", account, searchPaths)
-	for _, path := range searchPaths {
+	returnRecords := make([]LedgerRecord, len(searchPaths))
+	for idx, path := range searchPaths {
 		searchPath := fmt.Sprintf("spiffe://%s", path)
 		var foundRecord AuroraLedgerRecord
 		db.Where(&AuroraLedgerRecord{Account: account, Name: searchPath}).First(&foundRecord)
 		log.Printf("account: %v, path:%v, record: %#v\n", certUrl.Host, path, foundRecord)
+		returnRecords[idx] = LedgerRecord{
+			Certificate: foundRecord.Certificate,
+			Name:        searchPath,
+			Account:     account,
+		}
 	}
 
-
-	return []LedgerRecord{}, nil
+	return returnRecords, nil
 }

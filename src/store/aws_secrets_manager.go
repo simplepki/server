@@ -1,35 +1,35 @@
 package store
 
 import (
-	"log"
 	"errors"
 	"fmt"
+	"log"
 	"net/url"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 
 	"github.com/simplepki/core/keypair"
 )
 
 type AWSSecretsManagerStore struct{}
 
-func (sms AWSSecretsManagerStore) Exists( account string, id url.URL) (bool, error) {
-	nameString := fmt.Sprintf("%s/%s%s",account, id.Host,id.Path)
-	
+func (sms AWSSecretsManagerStore) Exists(account string, id url.URL) (bool, error) {
+	nameString := fmt.Sprintf("%s/%s%s", account, id.Host, id.Path)
+
 	config := &aws.Config{}
 	session := session.Must(session.NewSession(config))
 
 	sm := secretsmanager.New(session)
 
-	describeSecretInput := &secretsmanager.DescribeSecretInput {
+	describeSecretInput := &secretsmanager.DescribeSecretInput{
 		SecretId: aws.String(nameString),
 	}
 
 	describeResponse, err := sm.DescribeSecret(describeSecretInput)
-	
+
 	if err != nil {
 		if aerr, ok := err.(awserr.Error); ok {
 			switch aerr.Code() {
@@ -51,13 +51,13 @@ func (sms AWSSecretsManagerStore) Exists( account string, id url.URL) (bool, err
 
 func (sms AWSSecretsManagerStore) Put(account string, kp keypair.KeyPair) error {
 
-	if len(kp.GetCertificate().URIs) < 1{
+	if len(kp.GetCertificate().URIs) < 1 {
 		return errors.New("No URI supplied")
 	}
 
 	url := kp.GetCertificate().URIs[0]
-	nameString := fmt.Sprintf("%s/%s%s",account, url.Host,url.Path)
-	
+	nameString := fmt.Sprintf("%s/%s%s", account, url.Host, url.Path)
+
 	config := &aws.Config{}
 	session := session.Must(session.NewSession(config))
 
@@ -80,7 +80,7 @@ func (sms AWSSecretsManagerStore) Put(account string, kp keypair.KeyPair) error 
 }
 
 func (sms AWSSecretsManagerStore) Get(account string, id url.URL) keypair.KeyPair {
-	nameString := fmt.Sprintf("%s/%s%s",account, id.Host,id.Path)
+	nameString := fmt.Sprintf("%s/%s%s", account, id.Host, id.Path)
 
 	config := &aws.Config{}
 	session := session.Must(session.NewSession(config))
