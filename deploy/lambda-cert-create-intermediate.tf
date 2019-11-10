@@ -86,10 +86,10 @@ EOF
 
 }
 
-resource "aws_iam_role_policy_attachment" "create_intermediate_role_policy_attach_s3" {
+/*resource "aws_iam_role_policy_attachment" "create_intermediate_role_policy_attach_s3" {
   role = "${aws_iam_role.create_intermediate_role.name}"
   policy_arn = "${aws_iam_policy.s3_policy.arn}"
-}
+}*/
 
 resource "aws_iam_role_policy_attachment" "create_intermediate_role_policy_attach_logs" {
   role = "${aws_iam_role.create_intermediate_role.name}"
@@ -98,12 +98,12 @@ resource "aws_iam_role_policy_attachment" "create_intermediate_role_policy_attac
 
 resource "aws_iam_role_policy_attachment" "intermediate_role_policy_attach_secrets_manager_get" {
 	role = "${aws_iam_role.create_intermediate_role.name}"
-	policy_arn = "${aws_iam_policy.secrets_manager_get_access_policy.arn}"
+	policy_arn = "${aws_iam_policy.secrets_manager_get_cert_access_policy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "intermediate_role_policy_attach_secrets_manager_create" {
 	role = "${aws_iam_role.create_intermediate_role.name}"
-	policy_arn = "${aws_iam_policy.secrets_manager_create_access_policy.arn}"
+	policy_arn = "${aws_iam_policy.secrets_manager_create_cert_access_policy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "intermediate_role_policy_attach_mysql" {

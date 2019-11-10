@@ -12,14 +12,34 @@ import (
 	"github.com/simplepki/core/keypair"
 	"github.com/simplepki/server/ledger"
 	"github.com/simplepki/server/store"
+	"github.com/simplepki/server/auth"
 )
 
 type CAEvent struct {
+	Token string `json:"token"`
 	CAName  string `json:"ca_name"`
 	Account string `json:"account"`
 }
 
 func HandleRequest(ctx context.Context, event CAEvent) (error) {
+	if event.Token == "" {
+		return errors.New("No Auth Token Provided")
+	}
+
+	jwtTokenAuth, err := auth.GetJWTAuthorizer("lambda")
+	if err != nil {
+		return err
+	}
+
+	authed, err := jwtTokenAuth.AuthorizeResource(event.Token, "local", event.CAName)
+	if err != nil {
+		return err
+	}
+
+	if !authed {
+		return errors.New("Access Denied")
+	}
+
 	store := store.AWSSecretsManagerStore{}
 	
 	uri, err := url.Parse("spiffe://"+event.CAName)

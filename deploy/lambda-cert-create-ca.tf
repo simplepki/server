@@ -99,7 +99,7 @@ resource "aws_iam_role_policy_attachment" "create_ca_role_policy_attach_logs" {
 
 resource "aws_iam_role_policy_attachment" "ca_role_policy_attach_secrets_manager_create" {
 	role = "${aws_iam_role.create_ca_role.name}"
-	policy_arn = "${aws_iam_policy.secrets_manager_create_access_policy.arn}"
+	policy_arn = "${aws_iam_policy.secrets_manager_create_cert_access_policy.arn}"
 }
 
 resource "aws_iam_role_policy_attachment" "ca_role_policy_attach_mysql" {

@@ -78,7 +78,7 @@ resource "aws_iam_policy" "certificate_ledger_access_policy" {
 EOF
 }
 
-resource "aws_iam_policy" "secrets_manager_create_access_policy" {
+resource "aws_iam_policy" "secrets_manager_create_cert_access_policy" {
 	name = "secrets_manager_create_access_policy"
 	description = "IAM policy for accessing secrets manager"
 
@@ -92,14 +92,14 @@ resource "aws_iam_policy" "secrets_manager_create_access_policy" {
 			"secretsmanager:CreateSecret",
       "secretsmanager:DescribeSecret"
 		],
-		"Resource": "arn:aws:secretsmanager:*:*:*"
+		"Resource": "arn:aws:secretsmanager:*:*:cert@*"
 	}
   ]
 }
 EOF
 }
 
-resource "aws_iam_policy" "secrets_manager_get_access_policy" {
+resource "aws_iam_policy" "secrets_manager_get_cert_access_policy" {
 	name = "secrets_manager_get_access_policy"
 	description = "IAM policy for accessing secrets manager"
 
@@ -113,7 +113,7 @@ resource "aws_iam_policy" "secrets_manager_get_access_policy" {
 			"secretsmanager:GetSecretValue",
       "secretsmanager:DescribeSecret"
 		],
-		"Resource": "arn:aws:secretsmanager:*:*:*"
+		"Resource": "arn:aws:secretsmanager:*:*:cert@*"
 	}
   ]
 }
@@ -135,7 +135,7 @@ resource "aws_iam_policy" "secrets_manager_mysql" {
       "secretsmanager:DescribeSecret",
 			"secretsmanager:GetSecretValue"
 		],
-		"Resource": "arn:aws:secretsmanager:us-west-1:953366327760:secret:mysql-WBluSP"
+		"Resource": "arn:aws:secretsmanager:us-west-1:953366327760:secret:mysql*"
 	}
   ]
 }

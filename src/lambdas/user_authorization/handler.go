@@ -8,13 +8,6 @@ import (
 	"github.com/simplepki/server/auth"
 )
 
-// account, prefix, types string, key []byte, ttlInSeconds int64
-type AuthEvent struct {
-	Token string `json:"token"`
-	TokenType string `json:"token_type"`
-	Resource string `json:"resource"`
-}
-
 func getJWTKey() ([]byte,error) {
 	// Use this code snippet in your app.
 	// If you need more information about configurations or implementing the sample code, visit the AWS docs:   
@@ -40,7 +33,7 @@ func getJWTKey() ([]byte,error) {
 	return result.SecretBinary, nil
 }
 
-func HandleRequest(ctx context.Context, event AuthEvent) (bool, error) {
+func HandleRequest(ctx context.Context, event auth.AuthEvent) (bool, error) {
 	var jwtProvider auth.LocalJWTProvider
 	switch event.TokenType {
 	case "local":

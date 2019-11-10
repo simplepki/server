@@ -69,14 +69,14 @@ resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_att
   policy_arn = "${aws_iam_policy.logging_policy.arn}"
 }
 
-resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_dynamodb" {
+/*resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_dynamodb" {
 	role = "${aws_iam_role.sign_user_certificate_role.name}"
 	policy_arn = "${aws_iam_policy.certificate_ledger_access_policy.arn}"
-}
+}*/
 
 resource "aws_iam_role_policy_attachment" "sign_user_certificate_role_policy_attach_secrets_manager_get" {
 	role = "${aws_iam_role.sign_user_certificate_role.name}"
-	policy_arn = "${aws_iam_policy.secrets_manager_get_access_policy.arn}"
+	policy_arn = "${aws_iam_policy.secrets_manager_get_cert_access_policy.arn}"
 }
 
 

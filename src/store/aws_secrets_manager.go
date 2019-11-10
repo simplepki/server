@@ -65,7 +65,7 @@ func (sms AWSSecretsManagerStore) Put(account string, kp keypair.KeyPair) error 
 
 	secretsInput := &secretsmanager.CreateSecretInput{
 		Description:  aws.String("CA KeyPair"),
-		Name:         aws.String(nameString),
+		Name:         aws.String("cert@"+nameString),
 		SecretString: aws.String(kp.Base64Encode()),
 	}
 
@@ -88,7 +88,7 @@ func (sms AWSSecretsManagerStore) Get(account string, id url.URL) keypair.KeyPai
 	sm := secretsmanager.New(session)
 
 	query := &secretsmanager.GetSecretValueInput{
-		SecretId: aws.String(nameString),
+		SecretId: aws.String("cert@"+nameString),
 	}
 
 	output, err := sm.GetSecretValue(query)
