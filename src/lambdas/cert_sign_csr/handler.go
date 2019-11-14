@@ -16,7 +16,7 @@ import (
 	"github.com/simplepki/core/keypair"
 	"github.com/simplepki/server/store"
 	"github.com/simplepki/server/ledger"
-
+	"github.com/simplepki/server/auth"
 )
 
 /*
@@ -30,7 +30,8 @@ Input Event
 */
 
 type SignEvent struct {
-	InterName string `json:"intermediate_name"`
+	Token string `json:"token"`
+	InterChain string `json:"intermediate_chain"`
 	CertName string `json:"cert_name"`
 	Account string `json:"account"`
 	CSR string `json:"csr"`
@@ -42,8 +43,8 @@ type CertEvent struct {
 }
 
 func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
-	if event.InterName == "" {
-		return CertEvent{}, errors.New("Missing Intermediate")
+	if event.InterChain == "" {
+		return CertEvent{}, errors.New("Missing Intermediate/CA chain")
 	}
 
 	if event.Account == "" {
@@ -54,11 +55,29 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 		return CertEvent{}, errors.New("No CSR Provided")
 	}
 
+	if event.Token == "" {
+		return  CertEvent{},errors.New("No Auth Token Provided")
+	}
+
+	jwtTokenAuth, err := auth.GetJWTAuthorizer("lambda")
+	if err != nil {
+		return  CertEvent{},err
+	}
+
+	authed, err := jwtTokenAuth.AuthorizeResource(event.Token, "local", event.InterChain+"/"+event.CertName)
+	if err != nil {
+		return  CertEvent{},err
+	}
+
+	if !authed {
+		return  CertEvent{},errors.New("Access Denied")
+	}
+
 	var InterName string
-	if strings.Contains(event.InterName, "spiffe://") {
-		InterName = event.InterName
+	if strings.Contains(event.InterChain, "spiffe://") {
+		InterName = event.InterChain
 	} else {
-		InterName = fmt.Sprintf("spiffe://%s", event.InterName)
+		InterName = fmt.Sprintf("spiffe://%s", event.InterChain)
 	}
 
 	if strings.HasSuffix(InterName, "/") {

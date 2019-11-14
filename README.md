@@ -78,9 +78,9 @@ Now we can create another token which only allows for a specific intermediate to
 
 With this new token, we can now pass the following json event to the intermediate lambda and run.
 
-```
+```json
 {
-  "token": <INTERMEDIATE_TOKEN_GOES_HERE>
+  "token": <INTERMEDIATE_TOKEN_GOES_HERE>,
   "account": "test-account",
   "ca_name": "test-ca",
   "intermediate_name": "test-intermediate1"
@@ -89,12 +89,39 @@ With this new token, we can now pass the following json event to the intermediat
 
 Or, from another Intermediate:
 
-```
+```json
 {
+  "token": <INTERMEDIATE_TOKEN_GIES_HERE>,
   "account": "test-account",
-  "ca_name": "test-inter",
-  "intermediate_name": "test-inter-two"
+  "ca_name": "test-ca",
+  "intermediate_name": "test-intermediate2"
 }
 ```
 
+And we can see this will deny access due to the token lacking the entitlement to create anything other than an intermediacte certificate authority at `test-ca/test-intermediate1`.
 
+
+### Create Certificate
+
+In order to create a certificate, we need to get another token that includes the ability to create certificates from a given chain.
+
+```json
+{
+    "account": "test-account",
+    "prefix": "test-ca/test-intermediate1/test-cert1",
+    "type": "local",
+    "ttl": 8640000
+}
+```
+
+And with this token we can now create a cert for the chain we have just created.
+
+```json
+{
+  "token": <TOKEN_GOES_HERE>,
+  "csr": <base64 CSR>,
+  "account": "test-account",
+  "intermediate_chain": "test-ca/test-intermediate1",
+  "cert_name": "test-cert1"
+}
+```
