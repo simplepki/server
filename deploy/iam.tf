@@ -193,3 +193,21 @@ EOF
 data "aws_iam_policy" "VPCLambda" {
   arn = "arn:aws:iam::aws:policy/AWSLambdaVPCAccessExecutionRole"
 } 
+
+resource "aws_iam_policy" "invoke_auth_lambda" {
+  name = "invoke_auth_lambda"
+  description= "IAM policy for invoking the auth lambda"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "lambda:InvokeFunction",
+            "Resource": "${aws_lambda_function.user_authorization.arn}"
+        }
+    ]
+}
+EOF
+}

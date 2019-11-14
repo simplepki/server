@@ -13,6 +13,12 @@ resource "aws_lambda_function" "create_intermediate" {
 	timeout = "300"
 	memory_size = 1024
 
+  environment {
+    variables = {
+      JWT_AUTH_ARN = "${aws_lambda_function.user_authorization.arn}"
+    }
+  }
+
   vpc_config {
     subnet_ids = [
       "subnet-64506701"
@@ -114,4 +120,9 @@ resource "aws_iam_role_policy_attachment" "intermediate_role_policy_attach_mysql
 resource "aws_iam_role_policy_attachment" "intermediate_role_policy_attach_ec2" {
   role = "${aws_iam_role.create_intermediate_role.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+}
+
+resource "aws_iam_role_policy_attachment" "intermediate_role_policy_auth_lambda" {
+  role = "${aws_iam_role.create_intermediate_role.name}"
+  policy_arn = "${aws_iam_policy.invoke_auth_lambda.arn}"
 }

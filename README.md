@@ -53,8 +53,11 @@ Further docs on the glob library can be found [here](https://github.com/gobwas/g
 
 ### Create CA
 
+Next, we can create a CA using the token generated above.
+
 ```
 {
+  "token": <TOKEN_GOES_HERE>,
   "account": "test-account",
   "ca_name": "test-ca"
 }
@@ -62,13 +65,25 @@ Further docs on the glob library can be found [here](https://github.com/gobwas/g
 
 ### Create Intermediate
 
-Directory from the CA:
+Now we can create another token which only allows for a specific intermediate to be generated and no child certificates.
+
+```json
+{
+    "account": "test-account",
+    "prefix": "test-ca/test-intermediate1",
+    "type": "local",
+    "ttl": 8640000
+}
+```
+
+With this new token, we can now pass the following json event to the intermediate lambda and run.
 
 ```
 {
+  "token": <INTERMEDIATE_TOKEN_GOES_HERE>
   "account": "test-account",
   "ca_name": "test-ca",
-  "intermediate_name": "test-inter"
+  "intermediate_name": "test-intermediate1"
 }
 ```
 

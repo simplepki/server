@@ -13,9 +13,11 @@ import (
 	"github.com/simplepki/core/keypair"
 	"github.com/simplepki/server/ledger"
 	"github.com/simplepki/server/store"
+	"github.com/simplepki/server/auth"
 )
 
 type CAEvent struct {
+	Token string `json:"token"`
 	CAName    string `json:"ca_name"`
 	InterName string `json:"intermediate_name"`
 	Account string `json:"account"`
@@ -24,10 +26,28 @@ type CAEvent struct {
 func HandleRequest(ctx context.Context, event CAEvent) error {
 	// check not empty
 	if event.CAName == "" {
-		log.Fatal("no ca name specified")
+		return errors.New("no ca name specified")
 	}
 	if event.InterName == "" {
-		log.Fatal("no intermediate name specified")
+		return errors.New("no intermediate name specified")
+	}
+
+	if event.Token == "" {
+		return errors.New("No Auth Token Provided")
+	}
+
+	jwtTokenAuth, err := auth.GetJWTAuthorizer("lambda")
+	if err != nil {
+		return err
+	}
+
+	authed, err := jwtTokenAuth.AuthorizeResource(event.Token, "local", event.CAName+"/"+event.InterName)
+	if err != nil {
+		return err
+	}
+
+	if !authed {
+		return errors.New("Access Denied")
 	}
 
 	var CAName, InterName string

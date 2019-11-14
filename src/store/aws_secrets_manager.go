@@ -25,7 +25,7 @@ func (sms AWSSecretsManagerStore) Exists(account string, id url.URL) (bool, erro
 	sm := secretsmanager.New(session)
 
 	describeSecretInput := &secretsmanager.DescribeSecretInput{
-		SecretId: aws.String(nameString),
+		SecretId: aws.String("cert@"+nameString),
 	}
 
 	describeResponse, err := sm.DescribeSecret(describeSecretInput)
