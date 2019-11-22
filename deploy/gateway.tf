@@ -82,6 +82,14 @@ resource "aws_lambda_function" "router" {
 	timeout = "300"
 	memory_size = 1024
 
+    environment {
+        variables = {
+            CREATE_CA = "${aws_lambda_function.create_ca.arn}",
+            CREATE_INTERMEDIATE = "${aws_lambda_function.create_intermediate.arn}",
+            SIGN_CSR = "${aws_lambda_function.sign_user_certificate.arn}"
+        }
+    }
+
   depends_on = ["aws_iam_role_policy_attachment.router_policy_attach_logs"]
 }
 
@@ -108,4 +116,9 @@ EOF
 resource "aws_iam_role_policy_attachment" "router_policy_attach_logs" {
   role = "${aws_iam_role.router_role.name}"
   policy_arn = "${aws_iam_policy.logging_policy.arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "router_policy_invoke_cert_lambdas" {
+  role = "${aws_iam_role.router_role.name}"
+  policy_arn = "${aws_iam_policy.invoke_cert_lambdas.arn}"
 }

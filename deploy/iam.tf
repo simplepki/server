@@ -211,3 +211,25 @@ resource "aws_iam_policy" "invoke_auth_lambda" {
 }
 EOF
 }
+
+resource "aws_iam_policy" "invoke_cert_lambdas" {
+  name = "invoke_cert_lambdas"
+  description= "IAM policy for invoking the cert lambdas"
+
+  policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "lambda:InvokeFunction",
+            "Resource": [
+              "${aws_lambda_function.create_ca.arn}",
+              "${aws_lambda_function.create_intermediate.arn}",
+              "${aws_lambda_function.sign_user_certificate.arn}"
+              ]
+        }
+    ]
+}
+EOF
+}
