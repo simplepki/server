@@ -1,7 +1,3 @@
-data "http" "myip" {
-  url = "http://ipv4.icanhazip.com"
-}
-
 variable "bastion_enabled" {
 	type = number
 	default = 1

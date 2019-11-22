@@ -14,9 +14,7 @@ resource "aws_lambda_function" "user_authorization" {
 	memory_size = 1024
 
   vpc_config {
-    subnet_ids = [
-      "subnet-64506701"
-    ]
+    subnet_ids = split(",",var.lambda_subnets)
 
     security_group_ids = [
       "${aws_security_group.user_authorization.id}"

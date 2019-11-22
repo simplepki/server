@@ -20,9 +20,7 @@ resource "aws_lambda_function" "create_intermediate" {
   }
 
   vpc_config {
-    subnet_ids = [
-      "subnet-64506701"
-    ]
+    subnet_ids = split(",",var.lambda_subnets)
 
     security_group_ids = [
       "${aws_security_group.intermediate_lambda.id}"

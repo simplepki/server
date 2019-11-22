@@ -427,3 +427,4 @@ MigrationBackup/
 
 # specific to this project
 builds/**
+**.envrc

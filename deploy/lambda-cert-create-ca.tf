@@ -21,9 +21,7 @@ resource "aws_lambda_function" "create_ca" {
   }
 
   vpc_config {
-    subnet_ids = [
-      "subnet-64506701"
-    ]
+    subnet_ids = split(",",var.lambda_subnets)
 
     security_group_ids = [
       "${aws_security_group.create_ca_lambda.id}"

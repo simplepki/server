@@ -135,7 +135,7 @@ resource "aws_iam_policy" "secrets_manager_mysql" {
       "secretsmanager:DescribeSecret",
 			"secretsmanager:GetSecretValue"
 		],
-		"Resource": "arn:aws:secretsmanager:us-west-1:953366327760:secret:mysql*"
+		"Resource": "arn:aws:secretsmanager:${var.region}:${var.account}:secret:mysql*"
 	}
   ]
 }
@@ -158,7 +158,7 @@ resource "aws_iam_policy" "secrets_manager_jwt" {
       "secretsmanager:DescribeSecret",
 			"secretsmanager:GetSecretValue"
 		],
-		"Resource": "arn:aws:secretsmanager:us-west-1:953366327760:secret:jwt*"
+		"Resource": "arn:aws:secretsmanager:${var.region}:${var.account}:secret:jwt*"
 	}
   ]
 }

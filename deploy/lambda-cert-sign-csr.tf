@@ -20,9 +20,7 @@ resource "aws_lambda_function" "sign_user_certificate" {
   }
 
   vpc_config {
-    subnet_ids = [
-      "subnet-64506701"
-    ]
+    subnet_ids = split(",",var.lambda_subnets)
 
     security_group_ids = [
       "${aws_security_group.cert_sign_csr.id}"

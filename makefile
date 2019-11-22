@@ -1,8 +1,8 @@
-ifeq ($(bucket),)
+ifeq ($(TF_VAR_bucket),)
 $(error variable bucket is not set)
 endif
 
-ifeq ($(region),)
+ifeq ($(TF_VAR_region),)
 $(error variable region is not set)
 endif
 
@@ -15,7 +15,7 @@ $(lambdas):
 	zip $@.zip $@
 
 bucket-up:
-	aws s3api create-bucket --bucket $(bucket) --region $(region) --create-bucket-configuration LocationConstraint=$(region)	
+	aws s3api create-bucket --bucket $(TF_VAR_bucket) --region $(TF_VAR_region) --create-bucket-configuration LocationConstraint=$(TF_VAR_region)	
 
 build-dir:
 	mkdir -p builds
@@ -27,15 +27,17 @@ build: build-dir
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_create_intermediate lambdas/cert_create_intermediate/*.go && \
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/cert_sign_csr lambdas/cert_sign_csr/*.go && \
 	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_get_token lambdas/user_get_token/*.go && \
-	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_authorization lambdas/user_authorization/*.go
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/user_authorization lambdas/user_authorization/*.go && \
+	GOARCH=amd64 GOOS=linux CGO_ENABLED=0 go build -ldflags '-extldflags "-static"' -o ../builds/lambda_router lambdas/lambda_router/*.go
 	
 
 zip:
 	make $(lambdas)
 
 deploy:
+	echo  region $(TF_VAR_region)
 	cd deploy && \
-	./generate_backend.sh bucket=$(bucket) region=$(region) && \
+	bucket=$(TF_VAR_bucket) region=$(TF_VAR_region) ./generate_backend.sh && \
 	terraform init && \
 	terraform apply
 	
