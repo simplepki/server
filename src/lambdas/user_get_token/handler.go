@@ -11,15 +11,8 @@ import (
 	//"fmt"
 
 	"github.com/simplepki/server/auth"
+	"github.com/simplepki/core/types"
 )
-
-// account, prefix, types string, key []byte, ttlInSeconds int64
-type CredentialsEvent struct {
-	Account string `json:"account"`
-	Prefix string `json:"prefix"`
-	Type string `json:"type"`
-	TTL int64 `json:"ttl"`
-}
 
 func getJWTKey() ([]byte,error) {
 	// Use this code snippet in your app.
@@ -70,7 +63,7 @@ func getJWTKey() ([]byte,error) {
 	return result.SecretBinary, nil
 }
 
-func HandleRequest(ctx context.Context, event CredentialsEvent) (string, error) {
+func HandleRequest(ctx context.Context, event types.CreateCredentialsEvent) (string, error) {
 	var jwtProvider auth.LocalJWTProvider
 	switch event.Type {
 	case "local":

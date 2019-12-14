@@ -11,19 +11,13 @@ import (
 	"net/url"
 
 	"github.com/simplepki/core/keypair"
+	"github.com/simplepki/core/types"
 	"github.com/simplepki/server/ledger"
 	"github.com/simplepki/server/store"
 	"github.com/simplepki/server/auth"
 )
 
-type CAEvent struct {
-	Token string `json:"token"`
-	CAName    string `json:"ca_name"`
-	InterName string `json:"intermediate_name"`
-	Account string `json:"account"`
-}
-
-func HandleRequest(ctx context.Context, event CAEvent) error {
+func HandleRequest(ctx context.Context, event types.CreateIntermediateAuthorityEvent) error {
 	// check not empty
 	if event.CAName == "" {
 		return errors.New("no ca name specified")
@@ -133,7 +127,7 @@ func newInter(ctx context.Context, interName string) (*keypair.InMemoryKP, *x509
 
 	log.Printf("creating certificate with pkix: %#v\n", interPkix)
 	csr := inter.CreateCSR(interPkix, []string{})
-	interTemp := keypair.CsrToCert(csr)
+	interTemp := keypair.CsrToCACert(csr)
 
 	return inter, interTemp, nil
 }

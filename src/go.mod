@@ -9,5 +9,5 @@ require (
 	github.com/gobwas/glob v0.2.3
 	github.com/jinzhu/gorm v1.9.10
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/simplepki/core v0.0.0-20191104061520-a31354857e4a
+	github.com/simplepki/core v0.0.1
 )

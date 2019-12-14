@@ -122,3 +122,7 @@ resource "aws_iam_role_policy_attachment" "router_policy_invoke_cert_lambdas" {
   role = "${aws_iam_role.router_role.name}"
   policy_arn = "${aws_iam_policy.invoke_cert_lambdas.arn}"
 }
+
+output "gateway_address" {
+  value = aws_lb.gateway.dns_name
+}

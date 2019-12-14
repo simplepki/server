@@ -14,6 +14,7 @@ import (
 	"strings"
 
 	"github.com/simplepki/core/keypair"
+	"github.com/simplepki/core/types"
 	"github.com/simplepki/server/store"
 	"github.com/simplepki/server/ledger"
 	"github.com/simplepki/server/auth"
@@ -29,48 +30,35 @@ Input Event
 }
 */
 
-type SignEvent struct {
-	Token string `json:"token"`
-	InterChain string `json:"intermediate_chain"`
-	CertName string `json:"cert_name"`
-	Account string `json:"account"`
-	CSR string `json:"csr"`
-}
-
-type CertEvent struct {
-	Cert  string   `json:"cert"`
-	Chain []string `json:"chain"`
-}
-
-func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
+func HandleRequest(_ context.Context, event types.SignCertificateEvent) (types.ReturnCertificateEvent, error) {
 	if event.InterChain == "" {
-		return CertEvent{}, errors.New("Missing Intermediate/CA chain")
+		return types.ReturnCertificateEvent{}, errors.New("Missing Intermediate/CA chain")
 	}
 
 	if event.Account == "" {
-		return CertEvent{}, errors.New("Missing Account")
+		return types.ReturnCertificateEvent{}, errors.New("Missing Account")
 	}
 
 	if len(event.CSR) == 0  {
-		return CertEvent{}, errors.New("No CSR Provided")
+		return types.ReturnCertificateEvent{}, errors.New("No CSR Provided")
 	}
 
 	if event.Token == "" {
-		return  CertEvent{},errors.New("No Auth Token Provided")
+		return  types.ReturnCertificateEvent{},errors.New("No Auth Token Provided")
 	}
 
 	jwtTokenAuth, err := auth.GetJWTAuthorizer("lambda")
 	if err != nil {
-		return  CertEvent{},err
+		return  types.ReturnCertificateEvent{},err
 	}
 
 	authed, err := jwtTokenAuth.AuthorizeResource(event.Token, "local", event.InterChain+"/"+event.CertName)
 	if err != nil {
-		return  CertEvent{},err
+		return  types.ReturnCertificateEvent{},err
 	}
 
 	if !authed {
-		return  CertEvent{},errors.New("Access Denied")
+		return  types.ReturnCertificateEvent{},errors.New("Access Denied")
 	}
 
 	var InterName string
@@ -88,16 +76,16 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 
 	interUri, err := url.Parse(InterName)
 	if err != nil {
-		return CertEvent{}, err
+		return types.ReturnCertificateEvent{}, err
 	}
 
 	interExists, err := store.Exists(event.Account, *interUri)
 	if err != nil {
-		return CertEvent{}, err
+		return types.ReturnCertificateEvent{}, err
 	}
 
 	if !interExists {
-		return CertEvent{}, errors.New("Intermediate Certificate Doesnt Exist")
+		return types.ReturnCertificateEvent{}, errors.New("Intermediate Certificate Doesnt Exist")
 	}
 
 	log.Println("getting intermediate with id: ", InterName)
@@ -107,14 +95,14 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	csrRaw, err := base64.StdEncoding.DecodeString(event.CSR)
 	if err != nil {
 		log.Println(err.Error())
-		return CertEvent{}, errors.New("Unable to decode b64 csr")
+		return types.ReturnCertificateEvent{}, errors.New("Unable to decode b64 csr")
 	}
 
 	// sign certificate
 	parsedCSR, err := x509.ParseCertificateRequest(csrRaw)
 	if err != nil {
 		log.Println(err.Error())
-		return CertEvent{}, errors.New("Unable to parse csr")
+		return types.ReturnCertificateEvent{}, errors.New("Unable to parse csr")
 	}
 
 	var CertName string
@@ -129,7 +117,7 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	}
 	uri, err := url.Parse(pkixName.CommonName)
 	if err != nil {
-		return CertEvent{}, errors.New("Unable to parse uri")
+		return types.ReturnCertificateEvent{}, errors.New("Unable to parse uri")
 	}
 
 	uriExists := false
@@ -168,12 +156,12 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 	})
 
 	if err != nil {
-		return CertEvent{}, errors.New("Unable to Publish Certificate")
+		return types.ReturnCertificateEvent{}, errors.New("Unable to Publish Certificate")
 	}
 
 	chainLedgerRecords, err := auroraLedger.GetChainForRecord(event.Account, *uri)
 	if err != nil {
-		return CertEvent{}, err
+		return types.ReturnCertificateEvent{}, err
 	}
 
 	chain := make([]string, len(chainLedgerRecords))
@@ -181,7 +169,7 @@ func HandleRequest(_ context.Context, event SignEvent) (CertEvent, error) {
 		chain[idx] = record.Certificate
 	}
 	
-	returnCert := CertEvent{
+	returnCert := types.ReturnCertificateEvent{
 		Cert:  string(signedPem),
 		Chain: chain,
 	}

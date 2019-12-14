@@ -5,6 +5,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/secretsmanager"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/simplepki/core/types"
 	"github.com/simplepki/server/auth"
 )
 
@@ -33,7 +34,7 @@ func getJWTKey() ([]byte,error) {
 	return result.SecretBinary, nil
 }
 
-func HandleRequest(ctx context.Context, event auth.AuthEvent) (bool, error) {
+func HandleRequest(ctx context.Context, event types.AuthorizeCredentialsEvent) (bool, error) {
 	var jwtProvider auth.LocalJWTProvider
 	switch event.TokenType {
 	case "local":

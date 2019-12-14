@@ -20,10 +20,13 @@ func main() {
 		var err error = nil
 		switch event.Path {
 		case "/create_ca":
+			log.Println("executing create_ca lambda")
 			response, err = runLambda("CREATE_CA", []byte(event.Body))
 		case "/create_intermediate":
+			log.Println("executing create_intermediate lambda")
 			response, err = runLambda("CREATE_INTERMEDIATE", []byte(event.Body))
 		case "/sign_csr":
+			log.Println("executing sign_csr lambda")
 			response, err = runLambda("SIGN_CSR", []byte(event.Body))
 		}
 

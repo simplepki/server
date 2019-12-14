@@ -5,16 +5,11 @@ import (
 	"errors"
 	"encoding/json"
 
+	"github.com/simplepki/core/types"
 	"github.com/aws/aws-sdk-go/service/lambda"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 )
-
-type AuthEvent struct {
-	Token string `json:"token"`
-	TokenType string `json:"token_type"`
-	Resource string `json:"resource"`
-}
 
 type JWTAuthorizer interface {
 	AuthorizeResource(jwt string, jwtType string, resource string) (bool, error)
@@ -42,7 +37,7 @@ func GetJWTAuthorizer(authType string) (JWTAuthorizer,error) {
 }
 
 func (l LambdaJWTAuthorizer) AuthorizeResource(jwt, jwtType, resource string ) (bool, error) {
-	lambdaEvent := AuthEvent{
+	lambdaEvent := types.AuthorizeCredentialsEvent{
 		Token: jwt,
 		TokenType: jwtType,
 		Resource: resource,

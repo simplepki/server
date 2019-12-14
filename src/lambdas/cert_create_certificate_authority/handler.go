@@ -10,18 +10,15 @@ import (
 	"net/url"
 
 	"github.com/simplepki/core/keypair"
+	"github.com/simplepki/core/types"
 	"github.com/simplepki/server/ledger"
 	"github.com/simplepki/server/store"
 	"github.com/simplepki/server/auth"
 )
 
-type CAEvent struct {
-	Token string `json:"token"`
-	CAName  string `json:"ca_name"`
-	Account string `json:"account"`
-}
 
-func HandleRequest(ctx context.Context, event CAEvent) (error) {
+
+func HandleRequest(ctx context.Context, event types.CreateCertificateAuthorityEvent) (error) {
 	if event.Token == "" {
 		return errors.New("No Auth Token Provided")
 	}
@@ -84,7 +81,7 @@ func HandleRequest(ctx context.Context, event CAEvent) (error) {
 	return nil
 }
 
-func newCA(ctx context.Context, event CAEvent) (keypair.KeyPair, error) {
+func newCA(ctx context.Context, event types.CreateCertificateAuthorityEvent) (keypair.KeyPair, error) {
 	var CAName string
 	if strings.Contains(event.CAName, "spiffe://") {
 		CAName = event.CAName
