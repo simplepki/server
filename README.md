@@ -8,6 +8,24 @@ Choose a *Region* to deploy SimplePKI into.
 
 Make a *Bucket* to track terrafrom state and to push the lambda files to. This can be done by running `make bucket-up bucket=<name> region=<region>`.
 
+We will also need a VPC with a public and private subnets setup to fulfill the following requirements:
+  - A public subnet to deploy a bastion to (handles the setup of the database)
+  - 2 or more public subnets to attach AWS Application Load Balancer to
+  - Private subnet(s) to run AWS Lambda functions in (uses endpoints and ENIs)
+
+MYSQL instance deployed in a private subnet with its credentials saved in AWS Secrets Manageras *mysql*. RDS shoud provide the option to save the credentials in Secrets Manager natively; but if you are rolling your own the credentials need to be in the format:
+
+```json
+{
+  "username": "INSERT USERNAME",
+  "password": "INSERT PASSWORD",
+  "engine": "mysql",
+  "host": "INSERT MYSQL FQDN OR IP ADDRESS",
+  "port": 3306,
+  "dbClusterIdentifier": "NOT NNEEDED"
+}
+```
+
 Now; make the terraform and automation a bit easier; we'll make and env vars file to source.
 
 ```
@@ -17,6 +35,8 @@ export bucket=<bucket name>
 export region=<region to deploy in>
 export TF_VAR_bastion_enabled=<enable bastion: 0 | 1>
 export TF_VAR_bastion_subnet=<public subnet to deploy bastion into>
+export TF_VAR_gateway_subnets=<public subnets for AWS Application Load Balancer; comma separated> 
+export TF_VAR_lambda_subnets=<private subnets to run Lambda endpoints>
 export TF_VAR_vpc_id=<vpc id to deploy infra into>
 
 ```
@@ -30,7 +50,11 @@ source <env file>
 make build deploy
 ```
 
-## Testing Lambdas
+### Terraform Outputs
+
+You will need to take note of the *gateway_address* and the *token_generator_arn* to be used by the client.
+
+## Testing Lambdas from the UI
 
 ### Create Access Token
 
@@ -55,7 +79,7 @@ Further docs on the glob library can be found [here](https://github.com/gobwas/g
 
 Next, we can create a CA using the token generated above.
 
-```
+```json
 {
   "token": <TOKEN_GOES_HERE>,
   "account": "test-account",

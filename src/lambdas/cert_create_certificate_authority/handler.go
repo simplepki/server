@@ -18,7 +18,7 @@ import (
 
 
 
-func HandleRequest(ctx context.Context, event types.CreateCertificateAuthorityEvent) (error) {
+func HandleRequest(ctx context.Context, event types.CreateCertificateAuthorityEvent) error {
 	if event.Token == "" {
 		return errors.New("No Auth Token Provided")
 	}

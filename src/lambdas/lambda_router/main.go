@@ -31,7 +31,7 @@ func main() {
 		}
 
 		if err != nil {
-			log.Printf("error: %s\n", err.Error())
+			log.Printf("error: %v \n", err)
 			return events.ALBTargetGroupResponse{
 				StatusCode: 500,
 				StatusDescription: "500 Internal Server Error",

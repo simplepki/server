@@ -71,3 +71,7 @@ resource "aws_iam_role_policy_attachment" "user_get_token_policy_attach_ec2" {
   role = "${aws_iam_role.user_get_token.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
+
+output "token_generator_arn" {
+  value = aws_lambda_function.user_get_token.arn
+}
