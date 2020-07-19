@@ -5,7 +5,8 @@ import (
 )
 
 type Store interface {
-	Exists(account, id string) (bool, error)
-	Put(account string, kp keypair.KeyPair) error
-	Get(account, id string) keypair.KeyPair
+	Init() error
+	Exists(KeyPairType keypair.KeyPairType, opts map[string]interface{}) (bool, error)
+	Put(kp keypair.KeyPair, opts map[string]interface{}) error
+	Get(KeyPairType keypair.KeyPairType, opts map[string]interface{}) keypair.KeyPair
 }

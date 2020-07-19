@@ -428,3 +428,6 @@ MigrationBackup/
 # specific to this project
 builds/**
 **.envrc
+
+### project specific
+settings.json
