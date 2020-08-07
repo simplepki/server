@@ -1,7 +1,7 @@
 package config
 
 import (
-	"https://github.com/spf13/viper"
+	"github.com/spf13/viper"
 	"github.com/simplepki/core/keypair"
 )
 
@@ -93,4 +93,78 @@ func GetInMemoryKeyPairConfig (path string) *keypair.InMemoryKeyPairConfig {
 		}
 	}
 	return config
+}
+
+func GetFileSystemKeyPairConfig (path string) *keypair.FileSystemKeyPairConfig {
+	config := &keypair.FileSystemKeyPairConfig{}
+
+	/*if viper.IsSet(path +".algorithm") {
+		switch viper.IsSet(path +".algorithm"){
+		case "ec256":
+			config.KeyAgorithm = keypair.AlgorithmEC256
+		case "ec384":
+			config.KeyAgorithm = keypair.AlgorithmEC384
+		case "rsa2048":
+			config.KeyAgorithm = keypair.AlgorithmRSA2048
+		case "rsa4096":
+			config.KeyAgorithm = keypair.AlgorithmRSA4096
+		}
+	}*/
+
+	if viper.IsSet(path + ".key_file") {
+		config.KeyFile = viper.GetString(path + ".key_file")
+	} else {
+		config.KeyFile = "./key.pem"
+	}
+
+	if viper.IsSet(path + ".cert_file") {
+		config.KeyFile = viper.GetString(path + ".cert_file")
+	} else {
+		config.KeyFile = "./cert.pem"
+	}
+
+	if viper.IsSet(path + ".chain_file") {
+		config.KeyFile = viper.GetString(path + ".chain_file")
+	} else {
+		config.KeyFile = "./chain.pem"
+	}
+	return config
+}
+
+func GetYubikeyKeyPairConfig (path string) *keypair.YubikeyKeyPairConfig {
+	config := &keypair.YubikeyKeyPairConfig{}
+
+	if viper.IsSet(path + ".subject_name") {
+		config.CertSubjectName = viper.GetString(path + ".subject_name")
+	} 
+
+	if viper.IsSet(path + ".reset") {
+		config.Reset = viper.GetBool(path + ".reset")
+	}
+
+	if viper.IsSet(path+".yubikey_name") {
+		name := viper.GetString("")
+		config.Name = &name
+	}
+
+	if viper.IsSet(path+".yubikey_serial_number") {
+		num := viper.GetUint32(path+".yubikey_serial_number")
+		config.Serial = &num
+	}
+
+	if viper.IsSet(path+".pin") {
+		pin := viper.GetString(path+".pin")
+		config.PIN = &pin
+	}
+
+	if viper.IsSet(path+".puk") {
+		puk := viper.GetString(path+".puk")
+		config.PUK = &puk
+	}
+
+	if viper.IsSet(path+".management_key") {
+		mk := viper.GetString(path+".management_key")
+		config.Base64ManagementKey = &mk
+	}
+ 	return config
 }

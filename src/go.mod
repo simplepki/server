@@ -12,4 +12,5 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/simplepki/core v0.0.1
 	github.com/spf13/cobra v1.0.0 // indirect
+	github.com/spf13/viper v1.4.0
 )

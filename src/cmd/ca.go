@@ -5,18 +5,31 @@ import (
 	"strings"
 
 	"github.com/jtaylorcpp/piv-go/piv"
+	"github.com/simplepki/server/config"
 	"github.com/spf13/cobra"
 )
 
 func init() {
 	rootCmd.AddCommand(caCmd)
-	caCmd.AddCommand(yubiCmd)
+	caCmd.AddCommand(yubiCmd, caInitCmd)
 	yubiCmd.AddCommand(listYubiCmd)
 }
 
 var caCmd = &cobra.Command{
 	Use:   "ca",
 	Short: "ca tools",
+}
+
+var caInitCmd = &cobra.Command{
+	Use:   "init",
+	Short: "initialize CA",
+	Run: func(cmd *cobra.Command, args []string) {
+		log.Println("initializing ca")
+		if !config.IsCAEnabled() {
+			log.Println("no ca definition found")
+			return
+		}
+	},
 }
 
 var yubiCmd = &cobra.Command{
